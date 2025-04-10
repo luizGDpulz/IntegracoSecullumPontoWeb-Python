@@ -110,13 +110,9 @@ class IntegrationApp(ctk.CTk):
         ).grid(row=7, column=0, pady=20)
         
     def handle_login(self):
-        # username = self.username_entry.get()
-        # password = self.password_entry.get()
-        # db_id = self.db_id_entry.get()
-        
-        username = "teste@api.com"
-        password = "api@123"
-        db_id = 117408
+        username = self.username_entry.get()
+        password = self.password_entry.get()
+        db_id = self.db_id_entry.get()
         
         if not all([username, password, db_id]):
             messagebox.showerror("Erro", "Por favor, preencha todos os campos!")
