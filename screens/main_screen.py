@@ -1,6 +1,5 @@
 import customtkinter as ctk
 from CTkMenuBar import *
-from endpoints.apiToken import APIToken
 from tkinter import messagebox
 import platform
 
@@ -12,6 +11,7 @@ class IntegrationApp(ctk.CTk):
         self.title("Integração Secullum")
         self.geometry("854x480")
         self.withdraw()  # Hide main window initially
+        self._set_appearance_mode("system")
         
         # Set icon
         self.iconbitmap("assets/secullum.ico")
@@ -70,37 +70,7 @@ class IntegrationApp(ctk.CTk):
         self.endpoints_dropdown.add_option("Motivos de Demissão", command=lambda: self.show_dismissal_reasons())
         self.endpoints_dropdown.add_option("Perguntas Adicionais", command=lambda: self.show_additional_questions())
         
-        self.menu.lift()  # Ensure menu stays on top
-            
-    def handle_login(self):
-        # username = self.username_entry.get()
-        # password = self.password_entry.get()
-        # db_id = self.db_id_entry.get()
-        
-        username = "teste@api.com"
-        password = "api@123"
-        db_id = 117408
-        
-        if not all([username, password, db_id]):
-            messagebox.showerror("Erro", "Por favor, preencha todos os campos!")
-            return
-            
-        try:
-            api_token = APIToken()
-            token_data = api_token.get(username, password)
-            
-            # Store token and database ID for future use
-            self.token_api = token_data.get('access_token')
-            self.db_id = db_id
-            
-            # Show success message
-            # messagebox.showinfo("Sucesso", "Login realizado com sucesso!")
-            
-            # Show main application interface
-            self.show_main_interface()
-            
-        except Exception as e:
-            messagebox.showerror("Erro", f"Falha no login: {str(e)}")
+        self.menu.lift()  # Ensure menu stays on top 
             
     def show_main_interface(self):
         # Clear main frame
@@ -129,6 +99,19 @@ class IntegrationApp(ctk.CTk):
         from screens.login_screen import LoginWindow
         login_window = LoginWindow(self, self.on_login_success)
         
+    def handle_credentials(self, credentials=None):
+        try:
+            # Store credentials for future use
+            self.token_api = credentials.get('token')
+            self.db_id = credentials.get('db_id')
+            print(f"Token: {self.token_api}")
+            print(f"DB ID: {self.db_id}")
+            # Show main application interface
+            self.show_main_interface()
+            
+        except Exception as e:
+            messagebox.showerror("Erro", f"Falha ao armazenar credênciais: {str(e)}")
+            
     def on_login_success(self, credentials):
         self.deiconify()  # Show main window
-        self.handle_login()  # Process login with stored credentials
+        self.handle_credentials(credentials)  # Process login with credentials
