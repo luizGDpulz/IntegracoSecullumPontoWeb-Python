@@ -9,7 +9,12 @@ class IntegrationApp(ctk.CTk):
         
         # Configure window
         self.title("Integração Secullum")
-        self.geometry("854x480")
+        
+        # Set initial size and minimum size
+        self.geometry("1280x720")
+        self.minsize(1280, 720)
+        self.update_idletasks()
+        
         self.withdraw()  # Hide main window initially
         self._set_appearance_mode("system")
         
@@ -30,14 +35,6 @@ class IntegrationApp(ctk.CTk):
         # Show login frame immediately
         self.show_login_frame()
         
-    def maximized_window(self):
-        if platform.system == "Windows":
-            self.state('zoomed')
-        elif platform.system == "Linux":
-            self.attributes('-zoomed', True)
-        else: 
-            self.geometry(f"{self.winfo_screenwidth()}x{self.winfo_screenheight()}+0+0")
-        
     def create_menu_bar(self):
         self.menu = CTkMenuBar(self)
         self.menu.grid(row=0, column=0, sticky="new")
@@ -49,26 +46,38 @@ class IntegrationApp(ctk.CTk):
         self.file_dropdown.add_separator()
         self.file_dropdown.add_option("Sair", command=self.quit)
         
-        # Departamentos menu
+        # Define menu options with their corresponding functions
+        menu_options = [
+            ("Afastamentos", "show_leaves"),
+            ("Atividades", "show_activities"),
+            ("Atividades Lançamentos", "show_activity_entries"),
+            ("Batidas", "show_clock_entries"),
+            ("Cálculos", "show_calculations"),
+            ("Cartão Ponto", "show_time_card"),
+            ("Departamentos", "show_departments"),
+            ("Empresas", "show_companies"),
+            ("Equipamentos", "show_equipment"),
+            ("Fonte de Dados", "show_data_sources"),
+            ("Funções", "show_roles"),
+            ("Funcionários", "show_employees"),
+            ("Horários", "show_schedules"),
+            ("Incluir Ponto", "show_add_timecard"),
+            ("Justificativas", "show_justifications"),
+            ("Motivos de Demissão", "show_dismissal_reasons"),
+            ("Perguntas Adicionais", "show_additional_questions"),
+        ]
+
+        # Create Endpoints menu
         endpoints_menu = self.menu.add_cascade("Endpoints")
         self.endpoints_dropdown = CustomDropdownMenu(endpoints_menu)
-        self.endpoints_dropdown.add_option("Atividades", command=lambda: self.show_activities())
-        self.endpoints_dropdown.add_option("Atividades Lançamentos", command=lambda: self.show_activity_entries())
-        self.endpoints_dropdown.add_option("Batidas", command=lambda: self.show_clock_entries())
-        self.endpoints_dropdown.add_option("Cálculos", command=lambda: self.show_calculations())
-        self.endpoints_dropdown.add_option("Cartão Ponto", command=lambda: self.show_time_card())
-        self.endpoints_dropdown.add_option("Departamentos", command=lambda: self.show_departments())
-        self.endpoints_dropdown.add_option("Empresas", command=lambda: self.show_companies())
-        self.endpoints_dropdown.add_option("Equipamentos", command=lambda: self.show_equipment())
-        self.endpoints_dropdown.add_option("Fonte de Dados", command=lambda: self.show_data_sources())
-        self.endpoints_dropdown.add_option("Funcionários", command=lambda: self.show_employees())
-        self.endpoints_dropdown.add_option("Afastamentos", command=lambda: self.show_leaves())
-        self.endpoints_dropdown.add_option("Funções", command=lambda: self.show_roles())
-        self.endpoints_dropdown.add_option("Horários", command=lambda: self.show_schedules())
-        self.endpoints_dropdown.add_option("Incluir Ponto", command=lambda: self.show_add_timecard())
-        self.endpoints_dropdown.add_option("Justificativas", command=lambda: self.show_justifications())
-        self.endpoints_dropdown.add_option("Motivos de Demissão", command=lambda: self.show_dismissal_reasons())
-        self.endpoints_dropdown.add_option("Perguntas Adicionais", command=lambda: self.show_additional_questions())
+        
+        # Add options using loop
+        for label, func in menu_options:
+            self.endpoints_dropdown.add_option(label, command=lambda f=func: getattr(self, f)())
+        
+        options_menu = self.menu.add_cascade("Opções")
+        self.options_dropdown = CustomDropdownMenu(options_menu)
+        self.options_dropdown.add_option("Configurações", command=lambda: self.show_settings())
         
         self.menu.lift()  # Ensure menu stays on top 
             
@@ -78,7 +87,7 @@ class IntegrationApp(ctk.CTk):
             widget.destroy()
             
         # Configure main frame
-        self.main_frame.grid(row=1, column=0, sticky="nsew", padx=10, pady=5)
+        self.main_frame.grid(row=1, column=0, sticky="nsew", padx=0, pady=0)
         self.main_frame.grid_columnconfigure(0, weight=1)
         self.main_frame.grid_rowconfigure(0, weight=1)
         
@@ -91,9 +100,18 @@ class IntegrationApp(ctk.CTk):
         welcome_label.grid(row=0, column=0, pady=20, sticky="n")
         
     def show_departments(self):
-        # TODO: Implement departments view
-        print("Show departments view")
-        print(f"Token: {self.token_api}")
+        # Clear main frame
+        for widget in self.main_frame.winfo_children():
+            widget.destroy()
+            
+        # Import and create department view
+        from screens.department_view import DepartmentView
+        department_view = DepartmentView(
+            self.main_frame,
+            token=self.token_api,
+            db_id=self.db_id
+        )
+        department_view.grid(row=0, column=0, sticky="nsew", padx=0, pady=0)
         
     def show_login_frame(self):
         from screens.login_screen import LoginWindow

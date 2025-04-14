@@ -94,14 +94,19 @@ class LoginWindow(ctk.CTkToplevel):
             text_color="red",
             font=("Roboto", 12),
             width=300,
-            height=40,
+            height=50,
+            wraplength=300
         )
     
     def authenticate(self):
         # Obter valores
-        username = self.username_entry.get()
-        password = self.password_entry.get()
-        db_id = self.db_id_entry.get()
+        # username = self.username_entry.get()
+        # password = self.password_entry.get()
+        # db_id = self.db_id_entry.get()
+        
+        username = "teste@api.com"
+        password = "api@123"
+        db_id = 117408
         
         # Validação básica
         if not all([username, password, db_id]):
@@ -109,11 +114,9 @@ class LoginWindow(ctk.CTkToplevel):
             return
             
         try:
-            # Tenta autenticar usando a API
             api_token = APIToken()
             token_data = api_token.get(username, password)
             
-            # Se chegou aqui, login foi bem sucedido
             credentials = {
                 "username": username,
                 "password": password,
